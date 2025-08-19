@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MIMS Minigame – Lấy mã token</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         margin:0;padding:0;background:#0b1220;color:#f4f6fb;display:flex;min-height:100vh;align-items:center;justify-content:center}
+    .card{background:#121a2b;border:1px solid #23304d;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.25);
+          padding:28px;max-width:560px;width:92%}
+    h1{font-size:22px;margin:0 0 10px}
+    p{line-height:1.55;margin:8px 0}
+    .token{font-size:48px;font-weight:800;letter-spacing:2px;margin:8px 0 4px}
+    .muted{color:#a9b4cf;font-size:14px}
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
+    button{background:#2b63ff;border:none;color:white;padding:10px 14px;border-radius:10px;font-weight:600;cursor:pointer}
+    button:active{transform:translateY(1px)}
+    .count{font-weight:700}
+    .bar{height:8px;background:#1d2a44;border-radius:999px;overflow:hidden;margin:12px 0}
+    .bar>div{height:100%;background:#2b63ff;width:0}
+    a.fallback{color:#90b4ff;text-decoration:underline}
+    .tiny{font-size:12px;color:#90a0bf;margin-top:10px}
+    code{background:#0a1326;border:1px solid #223153;border-radius:6px;padding:2px 6px}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>📎 Minigame MIMS – Lấy mã token</h1>
+    <p>Đây là <strong>mã token 3 chữ số</strong> của bạn. Hãy <strong>ghi lại</strong> và bình luận theo cú pháp: <code>[Đáp án] – [token]</code>.</p>
+    <div id="token" class="token">...</div>
+    <div class="row">
+      <button id="copyBtn">Sao chép token</button>
+      <span id="copyMsg" class="muted"></span>
+    </div>
+    <div class="bar"><div id="progress"></div></div>
+    <p class="muted">Sẽ chuyển sang bài viết MIMS sau <span id="secs" class="count">3</span>s…</p>
+    <p class="tiny">Nếu không tự chuyển, bấm vào đây: <a id="fallback" class="fallback" href="#" rel="nofollow noopener">Mở trang MIMS</a></p>
+  </div>
+
+  <script>
+    // ==== CONFIG: đặt link MIMS đích ở đây ====
+    const MIMS_URL = "https://www.mims.com/vietnam/disease/lung-cancer/disease-summary?utm_source=vhn&utm_medium=paid&utm_campaign=vhn_vn_specialty_session_campaign_15Aug2025";
+    const SESSION_KEY = "mims_minigame_token_v1_lungcancer";
+    // ==========================================
+
+    function randomToken() {
+      // 3-digit token 100–999
+      return Math.floor(100 + Math.random() * 900);
+    }
+
+    function getOrCreateToken() {
+      try {
+        const saved = sessionStorage.getItem(SESSION_KEY);
+        if (saved) return saved;
+      } catch(e){}
+      const t = String(randomToken());
+      try { sessionStorage.setItem(SESSION_KEY, t); } catch(e){}
+      return t;
+    }
+
+    const tokenEl = document.getElementById("token");
+    const copyBtn = document.getElementById("copyBtn");
+    const copyMsg = document.getElementById("copyMsg");
+    const secsEl = document.getElementById("secs");
+    const progressEl = document.getElementById("progress");
+    const fallback = document.getElementById("fallback");
+
+    const token = getOrCreateToken();
+    tokenEl.textContent = token;
+
+    const targetUrl = MIMS_URL + (MIMS_URL.includes("?") ? "&" : "?") + "token=" + encodeURIComponent(token);
+    fallback.href = targetUrl;
+
+    copyBtn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(token);
+        copyMsg.textContent = "Đã sao chép!";
+      } catch (e) {
+        copyMsg.textContent = "Không sao chép được, vui lòng ghi lại token.";
+      }
+      setTimeout(()=> copyMsg.textContent = "", 2500);
+    });
+
+    // Countdown + progress
+    let secs = 3;
+    secsEl.textContent = secs;
+    let elapsed = 0;
+    const total = 3000; // ms
+    const tick = 50; // ms
+    const timer = setInterval(() => {
+      elapsed += tick;
+      const remain = Math.max(0, total - elapsed);
+      secs = Math.ceil(remain / 1000);
+      secsEl.textContent = secs;
+      progressEl.style.width = ((elapsed/total)*100) + "%";
+      if (elapsed >= total) {
+        clearInterval(timer);
+        window.location.href = targetUrl;
+      }
+    }, tick);
+  </script>
+</body>
+</html>
