@@ -40,8 +40,8 @@
 
   <script>
     // ==== CONFIG: đặt link MIMS đích ở đây ====
-    const MIMS_URL = "https://www.mims.com/vietnam/disease/lung-cancer/disease-summary?utm_source=vhn&utm_medium=paid&utm_campaign=vhn_vn_specialty_session_campaign_15Aug2025";
-    const SESSION_KEY = "mims_minigame_token_v1_lungcancer";
+    const MIMS_URL = "https://www.mims.com/vietnam/disease/breast-cancer/disease-summary?utm_source=vhn&utm_medium=paid&utm_campaign=vhn_vn_specialty_session_campaign_29Aug2025";
+    const SESSION_KEY = "mims_minigame_token_v1_breastcancer";
     // ==========================================
 
     function randomToken() {
@@ -77,7 +77,7 @@
         await navigator.clipboard.writeText(token);
         copyMsg.textContent = "Đã sao chép!";
       } catch (e) {
-        copyMsg.textContent = "Không sao chép được, vui lòng ghi lại token.";
+        copyMsg.textContent = "Không sao chép được, vui lòng ghi lại mã số may mắn.";
       }
       setTimeout(()=> copyMsg.textContent = "", 2500);
     });
